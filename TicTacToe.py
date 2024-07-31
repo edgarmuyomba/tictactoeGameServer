@@ -45,3 +45,11 @@ class TicTacToe:
                 if self.game_state[one] == self.game_state[two] and self.game_state[one] == self.game_state[three]:
                     return True 
         return False
+    
+    @property
+    def available_spots(self):
+        spots = []
+        for i in range(9):
+            if self.game_state[i] is None:
+                spots.append(i)
+        return spots
