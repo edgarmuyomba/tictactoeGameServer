@@ -30,7 +30,7 @@ async def handleNewAIGame(websocket):
         "type": "new_game",
         "turn": game_instance.current_turn,
         "game_id": game_instance.id,
-        "mark": "O"
+        "mark": "X"
     }
     await websocket.send(json.dumps(event))
 

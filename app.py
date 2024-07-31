@@ -9,9 +9,9 @@ async def handler(websocket):
 
         if event["type"] == "new_game":
             await handleNewGame(websocket)
-        elif event["type" == "ai"]:
+        elif event["type"] == "ai":
             await handleNewAIGame(websocket)
-        elif event["type" == "play_move"]:
+        elif event["type"] == "play_move":
             await handlePlayMove(websocket, event)
 
 
