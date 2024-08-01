@@ -17,7 +17,6 @@ def aiMove(game_instance: TicTacToe):
             if score > best_score:
                 best_move = spot 
                 best_score = score 
-        
         return best_move
 
 
@@ -37,7 +36,7 @@ def minimax(array: list, depth: int, isMax: bool):
         maxValue = float('-inf')
         for spot in freeSpots:
             array[spot] = 'O'
-            value = minimax(array, depth + 1, True)
+            value = minimax(array, depth + 1, False)
             array[spot] = None 
             maxValue = max(value, maxValue)
         return maxValue
