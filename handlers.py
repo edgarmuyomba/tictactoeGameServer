@@ -117,7 +117,7 @@ async def handlePlayMove(websocket, event):
                                     "type": "draw",
                                     "game_state": game_instance.game_state
                                 }
-                            websocket.send(json.dumps(event))
+                            await websocket.send(json.dumps(event))
                         else:
                             # send normal move
                             event = {
