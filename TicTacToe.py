@@ -53,3 +53,6 @@ class TicTacToe:
             if self.game_state[i] is None:
                 spots.append(i)
         return spots
+    
+    def __str__(self):
+        return f"\nGame state - {self.game_state}\nWinner - {self.winner}\nDraw - {self.draw}\nTurn - {self.current_turn}"

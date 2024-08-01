@@ -43,49 +43,55 @@ async def handlePlayMove(websocket, event):
     players = game_instance.players
     try:
         game_instance.play(event['index'], websocket)
-    except RuntimeError as e:
+    except RuntimeError:
         event = {
-                "type": "error",
-                "message": e
-            }
+            "type": "error",
+            "message": "Not your turn",
+            "game_state": game_instance.game_state
+        }
         await websocket.send(json.dumps(event))
     else:
+        print(game_instance)
         if not game_instance.isAI:
             other_player = players[game_instance.current_turn]
 
             if game_instance.winner or game_instance.draw:
                 if game_instance.winner:
-                        # send win event
+                    # send win event
                     event = {
-                            "type": "win",
-                            "winner": 'X' if game_instance.current_turn == 'O' else 'O'
-                        }
-                else:
-                        # send draw event
-                    event = {
-                            "type": "draw"
-                        }
-                websockets.broadcast(players.values(), json.dumps(event))
-            else:
-                    # send normal move
-                event = {
-                        "type": "play_move",
+                        "type": "win",
+                        "winner": 'X' if game_instance.current_turn == 'O' else 'O',
                         "game_state": game_instance.game_state
                     }
+                else:
+                    # send draw event
+                    event = {
+                        "type": "draw",
+                        "game_state": game_instance.game_state
+                    }
+                websockets.broadcast(players.values(), json.dumps(event))
+            else:
+                # send normal move
+                event = {
+                    "type": "play_move",
+                    "game_state": game_instance.game_state
+                }
                 await other_player.send(json.dumps(event))
         else:
             if game_instance.winner or game_instance.draw:
                 if game_instance.winner:
-                        # send win event
+                    # send win event
                     event = {
-                            "type": "win",
-                            "winner": 'X' if game_instance.current_turn == 'O' else 'O'
-                        }
+                        "type": "win",
+                        "winner": 'X' if game_instance.current_turn == 'O' else 'O',
+                        "game_state": game_instance.game_state
+                    }
                 else:
-                        # send draw event
+                    # send draw event
                     event = {
-                            "type": "draw"
-                        }
+                        "type": "draw",
+                        "game_state": game_instance.game_state
+                    }
                 await websocket.send(json.dumps(event))
             else:
                 # wait for ai move
@@ -93,29 +99,30 @@ async def handlePlayMove(websocket, event):
                 if index is not None:
                     try:
                         game_instance.play(index, 'AI')
+                        print(game_instance)
                     except RuntimeError as e:
                         pass
                     else:
-                        other_player = players[game_instance.current_turn]
-
-                    if game_instance.winner or game_instance.draw:
-                        if game_instance.winner:
-                            # send win event
-                            event = {
-                                "type": "win",
-                                "winner": 'X' if game_instance.current_turn == 'O' else 'O'
-                            }
+                        if game_instance.winner or game_instance.draw:
+                            if game_instance.winner:
+                                # send win event
+                                event = {
+                                    "type": "win",
+                                    "winner": 'X' if game_instance.current_turn == 'O' else 'O',
+                                    "game_state": game_instance.game_state
+                                }
+                            else:
+                                # send draw event
+                                event = {
+                                    "type": "draw",
+                                    "game_state": game_instance.game_state
+                                }
+                            websocket.send(json.dumps(event))
                         else:
-                            # send draw event
+                            # send normal move
                             event = {
-                                "type": "draw"
+                                "type": "play_move",
+                                "game_state": game_instance.game_state,
+                                "turn": game_instance.current_turn
                             }
-                        other_player.send(json.dumps(event))
-                    else:
-                        # send normal move
-                        event = {
-                            "type": "play_move",
-                            "game_state": game_instance.game_state,
-                            "turn": game_instance.current_turn
-                        }
-                        await other_player.send(json.dumps(event))
+                            await websocket.send(json.dumps(event))
