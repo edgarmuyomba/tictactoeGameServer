@@ -11,6 +11,8 @@ class TicTacToe:
         self.isAI = False
 
     def add_player(self, websocket, mark):
+        if self.players['X'] and self.players['O']:
+            raise RuntimeError("Game session full!")
         self.players[mark] = websocket
 
     def play(self, index, websocket):

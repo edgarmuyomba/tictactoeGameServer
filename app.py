@@ -13,6 +13,8 @@ async def handler(websocket):
             await handleNewAIGame(websocket)
         elif event["type"] == "play_move":
             await handlePlayMove(websocket, event)
+        elif event["type"] == "join_game":
+            await handleJoinGame(websocket, event)
 
 
 async def main():

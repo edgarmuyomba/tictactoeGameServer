@@ -74,7 +74,8 @@ async def handlePlayMove(websocket, event):
                 # send normal move
                 event = {
                     "type": "play_move",
-                    "game_state": game_instance.game_state
+                    "game_state": game_instance.game_state,
+                    "turn": game_instance.current_turn
                 }
                 await other_player.send(json.dumps(event))
         else:
@@ -126,3 +127,37 @@ async def handlePlayMove(websocket, event):
                                 "turn": game_instance.current_turn
                             }
                             await websocket.send(json.dumps(event))
+
+
+async def handleJoinGame(websocket, event):
+    # expect the game_id and an index
+    game_instance: TicTacToe = game_sessions[event['game_id']]
+    if game_instance is not None:
+        try:
+            game_instance.add_player(websocket, 'O')
+        except RuntimeError as e:
+            event = {
+                "type": "error",
+                "message": "Game session full!"
+            }
+            await websocket.send(json.dumps(event))
+        else:
+            # event = {
+            #     "type": "player_joined",
+            #     "game_state": game_instance.game_state
+            # }
+            # game_players = list(game_instance.players.keys())
+            # websockets.broadcast(game_players, json.dumps(event))
+            event = {
+                "type": "new_game",
+                "turn": game_instance.current_turn,
+                "game_id": game_instance.id,
+                "mark": "O"
+            }
+            await websocket.send(json.dumps(event))
+    else:
+        event = {
+            "type": "error",
+            "message": f"Session with ID - {event['game_id']} does not exist!"
+        }
+        await websocket.send(json.dumps(event))
