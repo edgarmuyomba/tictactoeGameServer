@@ -44,7 +44,7 @@ class TicTacToe:
         for combo in win_combos:
             one, two, three = combo
             if self.game_state[one] and self.game_state[two] and self.game_state[three]:
-                if self.game_state[one] == self.game_state[two] and self.game_state[one] == self.game_state[three]:
+                if self.game_state[one] == self.game_state[two] and self.game_state[one] == self.game_state[three] and self.game_state[two] == self.game_state[three]:
                     return True 
         return False
     
