@@ -7,7 +7,9 @@ async def handler(websocket):
     async for message in websocket:
         event = json.loads(message)
 
-        if event["type"] == "new_game":
+        if event["type"] == "connect":
+            await handleConnect(websocket)
+        elif event["type"] == "new_game":
             await handleNewGame(websocket)
         elif event["type"] == "ai":
             await handleNewAIGame(websocket)

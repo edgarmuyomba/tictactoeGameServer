@@ -5,6 +5,12 @@ from AIPlayer import aiMove
 
 game_sessions = {}
 
+async def handleConnect(websocket):
+    event = {
+        "type": "connect"
+    }
+    await websocket.send(json.dumps(event))
+
 
 async def handleNewGame(websocket):
     game_instance = TicTacToe()
