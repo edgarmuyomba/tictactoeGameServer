@@ -1,22 +1,24 @@
 import secrets
+import logging
 
 class TicTacToe:
     def __init__(self):
         self.id = secrets.token_urlsafe(6)
         self.players = {'X': None, 'O': None}
+        self.player_connections = {}
         self.game_state = [None] * 9
         self.current_turn = 'X'
         self.winner = None 
         self.draw = False
         self.isAI = False
 
-    def add_player(self, websocket, mark):
+    def add_player(self, player_id, mark):
         if self.players['X'] and self.players['O']:
             raise RuntimeError("Game session full!")
-        self.players[mark] = websocket
+        self.players[mark] = player_id
 
-    def play(self, index, websocket):
-        if self.players[self.current_turn] != websocket:
+    def play(self, index, player_id):
+        if self.players[self.current_turn] != player_id:
             raise RuntimeError("Not your turn")
         
         self.game_state[index] = self.current_turn
@@ -28,6 +30,8 @@ class TicTacToe:
             self.draw = True
 
         self.current_turn = 'O' if self.current_turn == 'X' else 'X'
+
+        logging.debug(self.players, self.current_turn)
 
     @property
     def last_player_won(self):
@@ -57,4 +61,4 @@ class TicTacToe:
         return spots
     
     def __str__(self):
-        return f"\nGame state - {self.game_state}\nWinner - {self.winner}\nDraw - {self.draw}\nTurn - {self.current_turn}"
+        return f"\nGame state - {self.game_state}\nWinner - {self.winner}\nDraw - {self.draw}\nTurn - {self.current_turn}\nPlayers - {self.players}"
