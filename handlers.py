@@ -69,7 +69,8 @@ async def handlePlayMove(websocket, event):
         # print(game_instance)
         if not game_instance.isAI:
             # other_player = players[game_instance.current_turn]
-            other_player = game_instance.player_connections[game_instance.players[game_instance.current_turn]]
+            other_player = game_instance.player_connections[
+                game_instance.players[game_instance.current_turn]]
 
             if game_instance.winner or game_instance.draw:
                 if game_instance.winner:
@@ -85,7 +86,11 @@ async def handlePlayMove(websocket, event):
                         "type": "draw",
                         "game_state": game_instance.game_state
                     }
-                websockets.broadcast(game_instance.player_connections.values(), json.dumps(event))
+                player_sockets = game_instance.player_connections.values()
+                for player in player_sockets:
+                    await player.send(json.dumps(event))
+                # websockets.broadcast(player_sockets, json.dumps(event))
+                # del game_sessions[game_instance.id]
             else:
                 # send normal move
                 event = {
@@ -116,7 +121,7 @@ async def handlePlayMove(websocket, event):
                 if index is not None:
                     try:
                         game_instance.play(index, 'AI')
-                        print(game_instance)
+                        # print(game_instance)
                     except RuntimeError as e:
                         pass
                     else:
@@ -171,7 +176,8 @@ async def handleJoinGame(websocket, event):
                 "turn": game_instance.current_turn,
                 "game_id": game_instance.id,
                 "mark": "O",
-                "player_id": player_id
+                "player_id": player_id,
+                "game_state": game_instance.game_state
             }
             await websocket.send(json.dumps(event))
 
