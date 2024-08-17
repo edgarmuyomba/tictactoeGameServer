@@ -3,21 +3,32 @@ import websockets
 import json
 from handlers import *
 
+clients = {}
+
 async def handler(websocket):
-    async for message in websocket:
-        event = json.loads(message)
+    try:
+        client_id = websocket.remote_address  # or generate a unique ID
+        clients[client_id] = websocket
 
-        if event["type"] == "connect":
-            await handleConnect(websocket)
-        elif event["type"] == "new_game":
-            await handleNewGame(websocket)
-        elif event["type"] == "ai":
-            await handleNewAIGame(websocket)
-        elif event["type"] == "play_move":
-            await handlePlayMove(websocket, event)
-        elif event["type"] == "join_game":
-            await handleJoinGame(websocket, event)
+        async for message in websocket:
+            event = json.loads(message)
 
+            if event["type"] == "connect":
+                await handleConnect(websocket)
+            elif event["type"] == "new_game":
+                await handleNewGame(websocket)
+            elif event["type"] == "ai":
+                await handleNewAIGame(websocket)
+            elif event["type"] == "play_move":
+                await handlePlayMove(websocket, event)
+            elif event["type"] == "join_game":
+                await handleJoinGame(websocket, event)
+    except websockets.exceptions.ConnectionClosedError as e:
+        print("Client closed connection!")
+    except Exception as e:
+        print(f"Error - {e}")
+    finally:
+        del clients[client_id]
 
 async def main():
     async with websockets.serve(handler, "", 8001):

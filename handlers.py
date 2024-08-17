@@ -6,7 +6,6 @@ import secrets
 
 game_sessions = {}
 
-
 async def handleConnect(websocket):
     event = {
         "type": "connect"
