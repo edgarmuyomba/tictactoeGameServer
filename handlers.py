@@ -1,10 +1,10 @@
 from TicTacToe import TicTacToe
 import json
-import websockets
 from AIPlayer import aiMove
 import secrets
 
 game_sessions = {}
+
 
 async def handleConnect(websocket):
     event = {
@@ -183,3 +183,21 @@ async def handleJoinGame(websocket, event):
             "message": f"Session with ID - {event['game_id']} does not exist!"
         }
         await websocket.send(json.dumps(event))
+
+
+async def handleClientLeft(websocket):
+    game_id = None
+    # find the game instance
+    for id, game_instance in game_sessions.items():
+        if len(game_instance.player_connections) == 2:
+            for player_id, _websocket in game_instance.player_connections.items():
+                if _websocket != websocket:
+                    # send other player notification
+                    event = {
+                        "type": "player_left"
+                    }
+                    await _websocket.send(json.dumps(event))
+                    game_id = id 
+                    
+    if game_id is not None:
+        del game_sessions[game_id]

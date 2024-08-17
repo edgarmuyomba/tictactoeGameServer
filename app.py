@@ -5,6 +5,7 @@ from handlers import *
 
 clients = {}
 
+
 async def handler(websocket):
     try:
         client_id = websocket.remote_address  # or generate a unique ID
@@ -29,6 +30,8 @@ async def handler(websocket):
         print(f"Error - {e}")
     finally:
         del clients[client_id]
+        await handleClientLeft(websocket)
+
 
 async def main():
     async with websockets.serve(handler, "", 8001):
