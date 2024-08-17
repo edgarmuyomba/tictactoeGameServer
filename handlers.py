@@ -55,7 +55,6 @@ async def handlePlayMove(websocket, event):
     player_id = event['player_id']
 
     # get second player and send the game state
-    players = game_instance.players
     try:
         game_instance.play(event['index'], player_id)
     except RuntimeError:
@@ -66,39 +65,38 @@ async def handlePlayMove(websocket, event):
         }
         await websocket.send(json.dumps(event))
     else:
-        # print(game_instance)
+        print(game_instance)
         if not game_instance.isAI:
-            # other_player = players[game_instance.current_turn]
-            other_player = game_instance.player_connections[
-                game_instance.players[game_instance.current_turn]]
+            other_player = game_instance.player_connections.get(
+                game_instance.players.get(game_instance.current_turn, None), None)
 
-            if game_instance.winner or game_instance.draw:
-                if game_instance.winner:
-                    # send win event
-                    event = {
-                        "type": "win",
-                        "winner": 'X' if game_instance.current_turn == 'O' else 'O',
-                        "game_state": game_instance.game_state
-                    }
+            if other_player is not None:
+                if game_instance.winner or game_instance.draw:
+                    if game_instance.winner:
+                        # send win event
+                        event = {
+                            "type": "win",
+                            "winner": 'X' if game_instance.current_turn == 'O' else 'O',
+                            "game_state": game_instance.game_state
+                        }
+                    else:
+                        # send draw event
+                        event = {
+                            "type": "draw",
+                            "game_state": game_instance.game_state
+                        }
+                    player_sockets = game_instance.player_connections.values()
+                    for player in player_sockets:
+                        await player.send(json.dumps(event))
+                    del game_sessions[game_instance.id]
                 else:
-                    # send draw event
+                    # send normal move
                     event = {
-                        "type": "draw",
-                        "game_state": game_instance.game_state
+                        "type": "play_move",
+                        "game_state": game_instance.game_state,
+                        "turn": game_instance.current_turn
                     }
-                player_sockets = game_instance.player_connections.values()
-                for player in player_sockets:
-                    await player.send(json.dumps(event))
-                # websockets.broadcast(player_sockets, json.dumps(event))
-                # del game_sessions[game_instance.id]
-            else:
-                # send normal move
-                event = {
-                    "type": "play_move",
-                    "game_state": game_instance.game_state,
-                    "turn": game_instance.current_turn
-                }
-                await other_player.send(json.dumps(event))
+                    await other_player.send(json.dumps(event))
         else:
             if game_instance.winner or game_instance.draw:
                 if game_instance.winner:
@@ -165,12 +163,7 @@ async def handleJoinGame(websocket, event):
             }
             await websocket.send(json.dumps(event))
         else:
-            # event = {
-            #     "type": "player_joined",
-            #     "game_state": game_instance.game_state
-            # }
-            # game_players = list(game_instance.players.keys())
-            # websockets.broadcast(game_players, json.dumps(event))
+
             event = {
                 "type": "new_game",
                 "turn": game_instance.current_turn,
@@ -181,7 +174,6 @@ async def handleJoinGame(websocket, event):
             }
             await websocket.send(json.dumps(event))
 
-            # Notify the first player that the second player has joined
             first_player_id = game_instance.players['X']
             first_player_ws = game_instance.player_connections[first_player_id]
             await first_player_ws.send(json.dumps({"type": "player_joined", "game_state": game_instance.game_state}))
