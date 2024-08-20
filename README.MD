@@ -3,7 +3,8 @@ This is a simple implementation for a multiplayer game ([TicTacToe](https://play
 The front-end segment for this game can be found [here](https://github.com/edgarmuyomba/tic-tac-toe-v2).
 
 ## Events
-1. Connect
+1. ### Connect
+   
    This is used to establish a connection between a client and a server
 
    Request
@@ -18,7 +19,8 @@ The front-end segment for this game can be found [here](https://github.com/edgar
         "type": "connect"
     }
    ```
-2. New Game
+2. ### New Game
+ 
    This is used by the client to create a new game on the web server
 
    Request
@@ -38,7 +40,8 @@ The front-end segment for this game can be found [here](https://github.com/edgar
             "player_id": "<player's_id>"
         }
     ```
-3. AI
+4. ### AI
+   
    This triggers the creation of a new game against the AI agent
 
    Request
@@ -58,7 +61,8 @@ The front-end segment for this game can be found [here](https://github.com/edgar
             "player_id": "<player's_id>"
         }
     ```
-4. Play Move
+5. ### Play Move
+   
    This is used to trigger a game play move in the specific game session. The event is used to update the game state on the server and if playing against an AI agent, a response is obtained and sent back otherwise, the event is sent to the second player in the game session ( if any ).
 
    Request
@@ -97,7 +101,8 @@ The front-end segment for this game can be found [here](https://github.com/edgar
             }
         ```
 
-5. Join Game
+6. ### Join Game
+   
    This is used by a player to join an existing game session using the `game_id`
 
    Request
