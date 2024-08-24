@@ -3,6 +3,7 @@ import websockets
 import json
 from handlers import *
 import time
+import os
 
 clients = {}
 
@@ -50,7 +51,8 @@ async def handler(websocket):
 
 
 async def main():
-    async with websockets.serve(handler, "", 8001):
+    port = os.environ.get("PORT", 8001)
+    async with websockets.serve(handler, "0.0.0.0", port):
         await asyncio.Future()
 
 if __name__ == "__main__":
