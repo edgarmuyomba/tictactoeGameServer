@@ -2,13 +2,30 @@ import asyncio
 import websockets
 import json
 from handlers import *
+import time
 
 clients = {}
+
+REQUEST_LIMIT = 5 
+TIME_WINDOW = 10  
+client_requests = {}
 
 async def handler(websocket):
     try:
         client_id = websocket.remote_address  # or generate a unique ID
         clients[client_id] = websocket
+        client_requests[client_id] = []
+
+        # rate limiting
+        now = time.time()
+        client_requests[client_id] = [req for req in client_requests[client_id] if now - req < TIME_WINDOW]
+
+        if len(client_requests[client_id]) >= REQUEST_LIMIT:
+            await websocket.send("Rate limit exceeded. Try again later.")
+            await websocket.close()
+            return
+
+        client_requests[client_id].append(now)
 
         async for message in websocket:
             event = json.loads(message)
